@@ -130,13 +130,6 @@ def loadCollabNet(path):
     # TODO: Your code here!
 
     Graph = snap.LoadEdgeList(snap.PUNGraph, path, 0, 1)
-    #from here
-    #it = Graph.BegNI()
-    #startId = it.GetId()
-    #it.Next()
-    #while (it.GetId()!=startId):			
-    #	tempId = it.GetId()	
-    #	Graph.DelEdge(tempId, tempId)
 
     snap.DelSelfEdges(Graph)
 
@@ -161,8 +154,8 @@ def getDataPointsToPlot(Graph):
     DegToCntV = snap.TIntPrV()
     snap.GetDegCnt(Graph, DegToCntV)	
     for p in DegToCntV:
-    	X.append(p.GetVal1())
-    	Y.append(p.GetVal2())
+        X.append(p.GetVal1())
+        Y.append(p.GetVal2())
     ############################################################################
     return X, Y
 
