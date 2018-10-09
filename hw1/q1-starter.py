@@ -16,6 +16,7 @@ smallWorld = None
 collabNet = None
 
 
+
 # Problem 1.1
 def genErdosRenyi(N=5242, E=14484):
     """
@@ -276,9 +277,9 @@ def Q1_2():
     print('Clustering Coefficient for Small World Network: %f' % C_smallWorld)
     print('Clustering Coefficient for Collaboration Network: %f' % C_collabNet)
 
-    print('Clustering Coefficient official for Erdos Renyi Network: %f' % snap.GetClustCf(erdosRenyi))
-    print('Clustering Coefficient official for Small World Network: %f' % snap.GetClustCf(smallWorld))
-    print('Clustering Coefficient official for Collaboration Network: %f' % snap.GetClustCf(collabNet))
+    #print('Clustering Coefficient official for Erdos Renyi Network: %f' % snap.GetClustCf(erdosRenyi))
+    #print('Clustering Coefficient official for Small World Network: %f' % snap.GetClustCf(smallWorld))
+    #print('Clustering Coefficient official for Collaboration Network: %f' % snap.GetClustCf(collabNet))
 
 
 # Execute code for Q1.2
