@@ -1,8 +1,10 @@
 import snap
 import numpy as np
 
-FIn = snap.TFIn('hw2-q1.graph')
-G = snap.TUNGraph.Load(FIn)
+#FIn = snap.TFIn('hw2-q1.graph')
+#G = snap.TUNGraph.Load(FIn)
+
+G = snap.TUNGraph.Load(snap.TFIn("hw2-q1.graph"))
 
 def neighbours(G,nId):
     '''
@@ -41,7 +43,7 @@ def featureVect(G, nId):
             if dstNiD not in NIdV and dstNiD != nId:
                 egoOutEdges += 1
 
-    return [degree,egoinsideEdges,egoOutEdges]
+    return [degree,egoinsideEdges+degree,egoOutEdges]
 
 def cosineSim(G,nId_1,nId_2,V):
     '''
@@ -130,8 +132,9 @@ def recursive(G,V):
 def topN(G, nId, V, n = -1):
     '''
 
-    :param justFive: return just first five
+    :param n: how many to return (default -1 is return all)
     :param G: undirected graph
+    :param V: dictionray of feature vectors
     :param nId: id of node
     :return: list of top five most similar nIds by cosineSim
     '''
@@ -155,9 +158,13 @@ def histogram(sim):
     """
     import matplotlib.pyplot as plt
     input = np.array([x[1] for x in sim])
-    plt.hist(input,bins = 20)
+    plt.hist(input,bins = 100)
+    plt.ylabel('#of nodes')
+    plt.xlabel('score')
     plt.title("histogram of sim scores")
+    plt.savefig('q1_3.png', format='png')
     plt.show()
+
 
 def rnd_score(sim,V,lower, upper):
     """
@@ -175,11 +182,39 @@ def rnd_score(sim,V,lower, upper):
             break
     return [score[0],score[1],V[score[0]]]
 
+def feature_vec_test(G,nId):
 
+    #print "deg of nine", G.GetNI(9).GetDeg()
+    #for n in neighbours(G, 9):
+    #    print n, G.GetNI(9).GetDeg()
+    node = G.GetNI(nId)
+    degree = node.GetDeg()
+
+    NIdV = snap.TIntV()
+    for Id in node.GetOutEdges():
+        NIdV.Add(Id)
+    for i in NIdV:
+        print i
+    #print "vector sosedov:",NIdV
+    egoNet = snap.GetSubGraph(G, NIdV)
+    print "egonet:",egoNet.Dump()
+    egoinsideEdges = egoNet.GetEdges()
+    egoOutEdges = 0
+    for id in NIdV:
+        nodeTemp = G.GetNI(id)
+        for dstNiD in nodeTemp.GetOutEdges():
+            bool = dstNiD not in NIdV and dstNiD != nId
+            if bool:
+                egoOutEdges += 1
+
+    return [degree, egoinsideEdges + degree, egoOutEdges]
 
 if __name__ == '__main__':
+
+    #print feature_vec_test(G, 9)
+
     print "1.1"
-    print "feature vect 2nd iteration for 9:", featureVect(G, 9)
+    print "feature vect for 9:", featureVect(G, 9)
     print "top 5 most similar nodes: "
     for element in topN(G, 9, {}, 5):
         print element
@@ -189,7 +224,9 @@ if __name__ == '__main__':
     V = {}
     for i in range(2):
         V = recursive(G, V)
-    print "feature vect for 9:", V[9]
+    print "feature vect 2nd iteration for 9:", V[9]
+    V = recursive(G, V)
+    print "feature vect 3nd iteration for 9:", V[9]
     print "top 5 most similar nodes: "
     for element in topN(G, 9, V, 5):
         print element
@@ -199,8 +236,23 @@ if __name__ == '__main__':
     histogram(sim)
     print "sample node vectors"
     #spikes at scores
-    spikes = [0.025,0.425,0.625, 0.925]
+    spikes = [0.0,0.6,0.85, 0.9]
     for spike in spikes:
-        print(rnd_score(sim,V,spike-0.005,spike+0.005))
+        print(rnd_score(sim,V,spike,spike+0.01))
+    nodes = [1582,429,16,2]
+    for nodeId in nodes:
+        node = G.GetNI(nodeId)
+        degree = node.GetDeg()
+
+        NIdV = snap.TIntV()
+        NIdV.Add(nodeId)
+        for Id in node.GetOutEdges():
+            NIdV.Add(Id)
+        egoNet = snap.GetSubGraph(G, NIdV)
+        egoinsideEdges = egoNet.GetEdges()
+        print "nodes:",degree
+        egoNet.Dump()
+
+
 
 
