@@ -53,8 +53,10 @@ def initial_voting_state(Graph):
     voter_prefs = {}
     ###########################################################################
     # DONE: Your code here!
-    for v in Graph.Nodes():
-        id = v.GetId()
+    # for v in Graph.Nodes():
+    #    id = v.GetId()
+    for id in range(Graph.GetNodes()):
+
         last_digit = id % 10
         if last_digit in (0,1,2,3):
             voter_prefs[id] = 'A'
@@ -84,7 +86,7 @@ def friends_suport(v,conf):
     return 'A' if n_A > n_B else ('B' if n_A < n_B else 'U')
 
 
-def iterate_voting(Graph, init_conf, inflexible = []):
+def iterate_voting(Graph, init_conf, inflexible=None):
     """
     Function to perform the 10-day decision process.
 
@@ -100,20 +102,22 @@ def iterate_voting(Graph, init_conf, inflexible = []):
 
     Hint: Use global variables num_voters and decision_period to iterate.
     """
+    if inflexible is None:
+        inflexible = []
     curr_conf = init_conf.copy()
     alt_state = alter_states()
     ###########################################################################
     # DONE: Your code here!
     for _ in range(decision_period):
-        for v in Graph.Nodes():
-            id = v.GetId()
-            if id%10 in (8, 9) and id%10 not in inflexible:
+        for id in range(Graph.GetNodes()):
+            # id = v.GetId()
+            v = Graph.GetNI(id)
+            if id%10 in (8, 9) and (id not in inflexible):
                 config = friends_suport(v,curr_conf)
                 if config == 'U':
-                    curr_conf[id] = alt_state
+                    curr_conf[id] = alt_state.__call__()
                 else:
                     curr_conf[id] = config
-
 
     ###########################################################################
     return curr_conf
@@ -124,6 +128,7 @@ def sim_election(Graph):
     Function to simulate the election process, takes the Graph as input and
     gives the final voting preferences (dictionary) as output.
     """
+    # print Graph.GetNI(0).GetDeg()
     init_conf = initial_voting_state(Graph)
     conf = iterate_voting(Graph, init_conf)
     return conf
@@ -244,6 +249,7 @@ def makePlot(res, title):
     plt.ylabel('#votes for A - #votes for B')
     plt.title(title)
     plt.legend(['graph1','graph2'])
+    plt.savefig(title)
     plt.show()
 
 
@@ -274,7 +280,8 @@ def top_k(Graph,k):
     :return: list of node IDs
     """
     degrees = [(node.GetDeg(),node.GetId()) for node in Graph.Nodes()]
-    degrees.sort(key=lambda x:x[0],reverse=True)
+    degrees.sort(key=lambda x:(-x[0],x[1]))
+    # degrees.sort(reverse=True)
     # return [x[0] for x in degrees[:k]]
     return degrees[:k]
 
@@ -293,9 +300,10 @@ def Q3sim(Graph, k):
     """
     ###########################################################################
     # DONE: Your code here!
+    # Graph.Dump()
     assert k <= 9000
     voting_state = initial_voting_state(Graph)
-    targeted = [x[0] for x in top_k(Graph,k)]
+    targeted = [x[1] for x in top_k(Graph,int(k/1000))]
     #targeted = [x for x in range(3000, 3000 + k / 100)]
     for i in targeted:
         voting_state[i] = 'A'
@@ -361,17 +369,19 @@ def Q4():
     plt.ylabel('count')
     plt.title("Degree distribution of two graphs")
     plt.legend(['graph1', 'graph2'])
+    plt.savefig('degree_distribution')
     plt.show()
     ###########################################################################
 def debug():
     Gs = read_graphs('graph1.txt', 'graph2.txt')
-    k = 20
+    k = 10
     for g in Gs:
         for node in top_k(g,k):
             print "deg:{} id:{}".format(node[0], node[1])
         print "__________________"
 
 def main():
+    # debug()
     Q1()
     Q2()
     Q3()
